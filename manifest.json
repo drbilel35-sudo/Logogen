@@ -1,0 +1,113 @@
+{
+  "name": "Logo Package Generator",
+  "short_name": "LogoPack",
+  "description": "Generate complete logo packages with all sizes, formats, and AI-powered design tools",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#10a37f",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["design", "productivity", "graphics"],
+  "screenshots": [
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Generate Logo",
+      "short_name": "AI Generate",
+      "description": "Generate a new logo with AI",
+      "url": "/#generate",
+      "icons": [
+        {
+          "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Convert Image",
+      "short_name": "Convert",
+      "description": "Convert and resize images",
+      "url": "/#convert",
+      "icons": [
+        {
+          "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Create Package",
+      "short_name": "Package",
+      "description": "Create logo package",
+      "url": "/#package",
+      "icons": [
+        {
+          "src": "https://i.postimg.cc/dtq83xGm/logo-512x512.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
