@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+   <!-- Favicon -->
+<link rel="icon" type="image/png" href="https://i.postimg.cc/dtq83xGm/logo-512x512.png">
+<link rel="shortcut icon" href="https://i.postimg.cc/dtq83xGm/logo-512x512.png">
     <!-- Add these to your existing head section -->
 <meta name="theme-color" content="#10a37f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,7 +18,6 @@
     <title>Logo Package Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
-    <img src="https://i.postimg.cc/dtq83xGm/logo-512x512.png" alt="Logo">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -80,16 +82,23 @@
         }
 
         .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: var(--primary);
-        }
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--primary);
+    overflow: hidden; /* Add this to contain the image */
+}
+
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image covers the area */
+}
 
         .header-title {
             font-size: 1.4rem;
@@ -932,20 +941,20 @@
 <body>
     <div class="container">
         <!-- Header -->
-        <div class="mobile-header">
-            <div class="header-top">
-                <div class="logo-header">
-                    <div class="logo-icon">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="header-title">Logo Package Generator</div>
-                </div>
-                <button class="mobile-menu-btn" onclick="toggleMobileNav()">
-                    <i class="fas fa-bars"></i>
-                </button>
+<div class="mobile-header">
+    <div class="header-top">
+        <div class="logo-header">
+            <div class="logo-icon">
+                <img src="https://i.postimg.cc/dtq83xGm/logo-512x512.png" alt="Logo Package Generator" style="width: 35px; height: 35px; border-radius: 8px;">
             </div>
-            <p class="tagline">Generate complete logo packages with all sizes and formats</p>
+            <div class="header-title">Logo Package Generator</div>
         </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <p class="tagline">Generate complete logo packages with all sizes and formats</p>
+</div>
 
         <!-- Navigation -->
         <div class="mobile-nav" id="mobileNav">
