@@ -1,0 +1,2861 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Package Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #10a37f;
+            --primary-dark: #0d8c6c;
+            --secondary: #1a1a1a;
+            --accent: #ff6b6b;
+            --light: #ffffff;
+            --dark: #0f1419;
+            --gray: #6e6e78;
+            --card-bg: #ffffff;
+            --sidebar-bg: #f7f7f8;
+            --border: #e5e5e5;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Header */
+        .mobile-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 15px;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        /* Navigation */
+        .mobile-nav {
+            display: none;
+            background: var(--primary-dark);
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 120px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 70vh;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 15px;
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Common Sections */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            font-size: 16px;
+        }
+
+        .api-input, .prompt-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            margin-bottom: 12px;
+            transition: border-color 0.3s;
+        }
+
+        .api-input:focus, .prompt-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .connect-btn, .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .connect-btn:hover, .generate-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .generate-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--sidebar-bg);
+        }
+
+        .status-connected { color: var(--success); }
+        .status-disconnected { color: var(--error); }
+
+        /* Logo Sizes Grid */
+        .sizes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .size-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .size-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .size-card.active {
+            border-color: var(--primary);
+            background: rgba(16, 163, 127, 0.1);
+        }
+
+        .size-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .size-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .size-dimensions {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Formats Grid */
+        .formats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .format-card {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .format-card:hover {
+            border-color: var(--primary);
+        }
+
+        .format-card.active {
+            border-color: var(--primary);
+            background: rgba(16, 163, 127, 0.1);
+        }
+
+        .format-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .format-name {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        /* Image Upload */
+        .upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--sidebar-bg);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(16, 163, 127, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(16, 163, 127, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #imagePreview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 0 auto 15px;
+            display: none;
+            border-radius: 10px;
+        }
+
+        /* Conversion Options */
+        .conversion-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            background: var(--sidebar-bg);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Package Preview */
+        .package-preview {
+            background: var(--sidebar-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .preview-size {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .preview-format {
+            font-size: 10px;
+            color: var(--gray);
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+        }
+
+        .download-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        .download-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Logo Display */
+        .logo-display {
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            margin: 0 auto 20px;
+            border: 3px dashed var(--border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--sidebar-bg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .generated-logo {
+            max-width: 90%;
+            max-height: 90%;
+            display: none;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: var(--gray);
+            padding: 20px;
+        }
+
+        .placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            color: var(--primary);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(16, 163, 127, 0.2);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 15px;
+            background: var(--sidebar-bg);
+            color: var(--gray);
+            font-size: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Custom Size Input */
+        .custom-size-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .custom-size-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .add-size-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .custom-sizes-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .custom-size-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .remove-size-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Background Remover Section */
+        .bg-remove-section {
+            margin-top: 20px;
+        }
+
+        .bg-remove-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .bg-remove-btn:hover {
+            background: #ff5252;
+        }
+
+        .bg-remove-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+
+        /* Background Color Options */
+        .bg-color-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .bg-color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .bg-color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .bg-color-option.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary);
+        }
+
+        /* Maskable Favicon Section */
+        .maskable-section {
+            margin-top: 20px;
+        }
+
+        .masks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .mask-card {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .mask-card:hover {
+            border-color: var(--primary);
+        }
+
+        .mask-card.active {
+            border-color: var(--primary);
+            background: rgba(16, 163, 127, 0.1);
+        }
+
+        .mask-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .mask-name {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        /* Background Removal Preview */
+        .bg-removal-preview {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .preview-container {
+            text-align: center;
+        }
+
+        .preview-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .preview-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            object-fit: contain;
+            background-color: white;
+            background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                              linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: var(--sidebar-bg);
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: var(--primary);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Auto-process notification */
+        .auto-process-notice {
+            background: rgba(16, 163, 127, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            display: none;
+        }
+
+        .auto-process-notice i {
+            margin-right: 8px;
+        }
+
+        /* Background Removal Controls */
+        .bg-removal-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .sensitivity-slider {
+            flex: 1;
+        }
+        
+        .sensitivity-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .algorithm-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .processing-stats {
+            background: var(--sidebar-bg);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Mask Preview Section */
+        .mask-preview-section {
+            margin-top: 20px;
+        }
+        
+        .mask-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .mask-preview-item {
+            text-align: center;
+        }
+        
+        .mask-preview-canvas {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            margin: 0 auto 5px;
+            background-color: white;
+            background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                              linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        
+        .mask-preview-label {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        .no-preview-message {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            padding: 20px;
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .sizes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .formats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .conversion-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .masks-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .bg-color-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .bg-removal-controls {
+                flex-direction: column;
+            }
+            
+            .mask-preview-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 700px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="mobile-header">
+            <div class="header-top">
+                <div class="logo-header">
+                    <div class="logo-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="header-title">Logo Package Generator</div>
+                </div>
+                <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <p class="tagline">Generate complete logo packages with all sizes and formats</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('generate')">
+                    <i class="fas fa-robot"></i>
+                    AI Generate
+                </button>
+                <button class="nav-tab" onclick="switchTab('convert')">
+                    <i class="fas fa-sync-alt"></i>
+                    Convert
+                </button>
+                <button class="nav-tab" onclick="switchTab('package')">
+                    <i class="fas fa-box-open"></i>
+                    Package
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- AI Generate Tab -->
+            <div class="tab-content active" id="generate-tab">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-key"></i>
+                        <span>API Configuration</span>
+                    </div>
+                    <input type="password" class="api-input" id="apiKey" placeholder="Enter your OpenAI API key">
+                    <button class="connect-btn" onclick="testApiKey()">
+                        <i class="fas fa-plug"></i>
+                        Connect to DALL-E
+                    </button>
+                    <div class="api-status" id="apiStatus">
+                        <i class="fas fa-circle status-disconnected"></i>
+                        <span>Not connected to DALL-E</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-edit"></i>
+                        <span>Logo Description</span>
+                    </div>
+                    <textarea class="prompt-input" id="customPrompt" placeholder="Describe your logo in detail..." rows="4">A modern tech company logo with a blue abstract circuit design and clean typography</textarea>
+                </div>
+
+                <div class="section">
+                    <button class="generate-btn" id="generateBtn" onclick="generateLogo()">
+                        <i class="fas fa-robot"></i>
+                        Generate Logo with AI
+                    </button>
+                </div>
+
+                <div class="logo-display" id="logoDisplay">
+                    <div class="placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p>Your AI-generated logo will appear here</p>
+                    </div>
+                    <img class="generated-logo" id="generatedLogo" alt="Generated logo">
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">AI is creating your logo...</div>
+                </div>
+
+                <div class="auto-process-notice" id="autoProcessNotice">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Auto-processing background removal...</span>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <!-- Convert Tab -->
+            <div class="tab-content" id="convert-tab">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Image</span>
+                    </div>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <div class="upload-text">Click to upload or drag & drop</div>
+                        <div class="upload-text" style="font-size: 12px;">PNG, JPG, SVG, WEBP (Max 5MB)</div>
+                        <button class="upload-btn">Choose File</button>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none">
+                    </div>
+                    <img id="imagePreview" alt="Image preview">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i>
+                        <span>Conversion Options</span>
+                    </div>
+                    <div class="conversion-options">
+                        <div class="option-group">
+                            <div class="option-title">Output Format</div>
+                            <select id="outputFormat">
+                                <option value="png">PNG (Recommended)</option>
+                                <option value="jpg">JPG</option>
+                                <option value="webp">WEBP</option>
+                                <option value="svg">SVG (Vector)</option>
+                                <option value="ico">ICO (Favicon)</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <div class="option-title">Quality</div>
+                            <select id="outputQuality">
+                                <option value="1.0">High (100%)</option>
+                                <option value="0.8">Good (80%)</option>
+                                <option value="0.6">Medium (60%)</option>
+                                <option value="0.4">Low (40%)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-expand-alt"></i>
+                        <span>Resize Options</span>
+                    </div>
+                    <div class="conversion-options">
+                        <div class="option-group">
+                            <div class="option-title">Width (px)</div>
+                            <input type="number" id="resizeWidth" placeholder="Auto" class="api-input" min="1" max="5000">
+                        </div>
+                        <div class="option-group">
+                            <div class="option-title">Height (px)</div>
+                            <input type="number" id="resizeHeight" placeholder="Auto" class="api-input" min="1" max="5000">
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; color: var(--secondary); font-size: 14px;">
+                            <input type="checkbox" id="maintainAspect" checked>
+                            Maintain aspect ratio
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Background Removal Section -->
+                <div class="section bg-remove-section">
+                    <div class="section-title">
+                        <i class="fas fa-magic"></i>
+                        <span>Background Removal</span>
+                    </div>
+                    
+                    <select class="algorithm-select" id="algorithmSelect">
+                        <option value="auto">Auto Detection (Recommended)</option>
+                        <option value="brightness">Brightness Based</option>
+                        <option value="edges">Edge Detection</option>
+                        <option value="color">Color Similarity</option>
+                    </select>
+                    
+                    <div class="bg-removal-controls">
+                        <div class="sensitivity-slider">
+                            <div class="option-title">Sensitivity: <span class="sensitivity-value" id="sensitivityValue">5</span></div>
+                            <input type="range" id="sensitivitySlider" min="1" max="10" value="5" class="slider">
+                        </div>
+                    </div>
+                    
+                    <button class="bg-remove-btn" id="bgRemoveBtn" onclick="removeBackground()" disabled>
+                        <i class="fas fa-eraser"></i>
+                        Remove Background
+                    </button>
+                    
+                    <div class="processing-stats" id="processingStats" style="display: none;">
+                        Processing statistics will appear here...
+                    </div>
+                    
+                    <div class="section-title" style="margin-top: 20px;">
+                        <i class="fas fa-palette"></i>
+                        <span>Background Color Options</span>
+                    </div>
+                    <div class="bg-color-options" id="bgColorOptions">
+                        <div class="bg-color-option active" style="background-color: transparent;" data-color="transparent" title="Transparent"></div>
+                        <div class="bg-color-option" style="background-color: #ffffff;" data-color="#ffffff" title="White"></div>
+                        <div class="bg-color-option" style="background-color: #000000;" data-color="#000000" title="Black"></div>
+                        <div class="bg-color-option" style="background-color: #f8fafc;" data-color="#f8fafc" title="Light Gray"></div>
+                        <div class="bg-color-option" style="background-color: #10a37f;" data-color="#10a37f" title="Primary Green"></div>
+                        <div class="bg-color-option" style="background-color: #3b82f6;" data-color="#3b82f6" title="Blue"></div>
+                        <div class="bg-color-option" style="background-color: #ef4444;" data-color="#ef4444" title="Red"></div>
+                        <div class="bg-color-option" style="background-color: #f59e0b;" data-color="#f59e0b" title="Orange"></div>
+                        <div class="bg-color-option" style="background-color: #8b5cf6;" data-color="#8b5cf6" title="Purple"></div>
+                        <div class="bg-color-option" style="background-color: #06b6d4;" data-color="#06b6d4" title="Cyan"></div>
+                        <div class="bg-color-option" style="background-color: #84cc16;" data-color="#84cc16" title="Lime"></div>
+                        <div class="bg-color-option" style="background-color: #f97316;" data-color="#f97316" title="Orange"></div>
+                    </div>
+                    
+                    <!-- Background Removal Preview -->
+                    <div class="bg-removal-preview" id="bgRemovalPreview" style="display: none;">
+                        <div class="preview-container">
+                            <div class="preview-label">Original</div>
+                            <img id="originalPreview" class="preview-image" alt="Original image">
+                        </div>
+                        <div class="preview-container">
+                            <div class="preview-label">Background Removed</div>
+                            <img id="removedPreview" class="preview-image" alt="Background removed image">
+                        </div>
+                    </div>
+                    
+                    <div style="color: var(--gray); font-size: 14px; text-align: center; margin-top: 15px;">
+                        Select a background color to replace the removed background
+                    </div>
+                </div>
+
+                <div class="section">
+                    <button class="generate-btn" id="convertBtn" onclick="convertImage()" disabled>
+                        <i class="fas fa-sync-alt"></i>
+                        Convert & Resize Image
+                    </button>
+                </div>
+
+                <div class="error-message" id="convertError"></div>
+                <div class="success-message" id="convertSuccess"></div>
+            </div>
+
+            <!-- Package Tab -->
+            <div class="tab-content" id="package-tab">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span>Logo Sizes</span>
+                    </div>
+                    <div class="sizes-grid" id="sizesGrid">
+                        <!-- Sizes will be populated by JavaScript -->
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div class="section-title">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Custom Size</span>
+                        </div>
+                        <div class="custom-size-input">
+                            <input type="number" id="customWidth" placeholder="Width (px)" min="1" max="5000">
+                            <span style="display: flex; align-items: center;">x</span>
+                            <input type="number" id="customHeight" placeholder="Height (px)" min="1" max="5000">
+                            <button class="add-size-btn" onclick="addCustomSize()">Add</button>
+                        </div>
+                        <div class="custom-sizes-list" id="customSizesList">
+                            <!-- Custom sizes will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-file-image"></i>
+                        <span>File Formats</span>
+                    </div>
+                    <div class="formats-grid" id="formatsGrid">
+                        <!-- Formats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Maskable Favicon Section -->
+                <div class="section maskable-section">
+                    <div class="section-title">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Maskable Favicon Shapes</span>
+                    </div>
+                    <div class="masks-grid" id="masksGrid">
+                        <!-- Masks will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- REAL-TIME MASK PREVIEW -->
+                    <div class="mask-preview-section">
+                        <div class="section-title">
+                            <i class="fas fa-eye"></i>
+                            <span>Mask Preview</span>
+                        </div>
+                        <div class="mask-preview-container" id="maskPreviewContainer">
+                            <div class="no-preview-message">
+                                Select masks and upload/generate a logo to see preview
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; color: var(--gray); font-size: 14px;">
+                        Select mask shapes for generating maskable favicons that adapt to different platforms
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-eye"></i>
+                        <span>Package Preview</span>
+                    </div>
+                    <div class="package-preview">
+                        <div style="text-align: center; color: var(--gray); margin-bottom: 15px;">
+                            Your logo package will include:
+                        </div>
+                        <div class="preview-grid" id="packagePreview">
+                            <!-- Package items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+
+                <div class="section download-section">
+                    <button class="download-btn" id="downloadPackageBtn" onclick="downloadPackage()" disabled>
+                        <i class="fas fa-download"></i>
+                        Download Complete Package
+                    </button>
+                    <div style="margin-top: 15px; color: var(--gray); font-size: 12px;">
+                        Includes all selected sizes, formats, and maskable favicons in a ZIP file
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Complete Logo Package Generator • All Standard Sizes • Multiple Formats • AI Generation • Image Conversion</p>
+            <p>Requires valid OpenAI API key for AI generation features</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            apiKey: '',
+            isConnected: false,
+            baseURL: 'https://api.openai.com/v1',
+            model: 'dall-e-3',
+            selectedSizes: new Set(),
+            selectedFormats: new Set(['png', 'svg']),
+            uploadedImage: null,
+            customSizes: new Set(),
+            selectedMasks: new Set(['circle']),
+            bgRemovedImage: null,
+            selectedBgColor: 'transparent',
+            autoProcessEnabled: true,
+            currentSourceImage: null // Track the current image for mask preview
+        };
+
+        // Standard logo sizes for different platforms
+        const LOGO_SIZES = [
+            // App Icons
+            { name: 'App Store', size: '1024x1024', type: 'ios' },
+            { name: 'Play Store', size: '512x512', type: 'android' },
+            { name: 'App Icon', size: '180x180', type: 'app' },
+            
+            // Social Media
+            { name: 'Facebook', size: '1200x630', type: 'social' },
+            { name: 'Twitter', size: '1200x600', type: 'social' },
+            { name: 'Instagram', size: '1080x1080', type: 'social' },
+            { name: 'LinkedIn', size: '1200x627', type: 'social' },
+            
+            // Favicons
+            { name: 'Favicon 32x32', size: '32x32', type: 'favicon' },
+            { name: 'Favicon 16x16', size: '16x16', type: 'favicon' },
+            { name: 'Apple Touch', size: '180x180', type: 'favicon' },
+            { name: 'Android Icon', size: '192x192', type: 'favicon' },
+            
+            // Website
+            { name: 'Website Logo', size: '200x50', type: 'web' },
+            { name: 'Header Logo', size: '300x100', type: 'web' },
+            { name: 'Footer Logo', size: '150x50', type: 'web' },
+            
+            // Print
+            { name: 'Business Card', size: '300x300', type: 'print' },
+            { name: 'Letterhead', size: '400x200', type: 'print' },
+            { name: 'Large Format', size: '2000x2000', type: 'print' },
+            
+            // Custom sizes from the provided list
+            { name: 'Custom Size 1', size: '72x72', type: 'custom' },
+            { name: 'Custom Size 2', size: '96x96', type: 'custom' },
+            { name: 'Custom Size 3', size: '128x128', type: 'custom' },
+            { name: 'Custom Size 4', size: '144x144', type: 'custom' },
+            { name: 'Custom Size 5', size: '152x152', type: 'custom' },
+            { name: 'Custom Size 6', size: '192x192', type: 'custom' },
+            { name: 'Custom Size 7', size: '384x384', type: 'custom' },
+            { name: 'Custom Size 8', size: '512x512', type: 'custom' }
+        ];
+
+        // Supported formats
+        const FORMATS = [
+            { name: 'PNG', value: 'png', vector: false, transparent: true },
+            { name: 'JPG', value: 'jpg', vector: false, transparent: false },
+            { name: 'WEBP', value: 'webp', vector: false, transparent: true },
+            { name: 'SVG', value: 'svg', vector: true, transparent: true },
+            { name: 'ICO', value: 'ico', vector: false, transparent: true },
+            { name: 'PDF', value: 'pdf', vector: true, transparent: true }
+        ];
+
+        // Maskable favicon shapes
+        const MASKS = [
+            { name: 'None', value: 'none', icon: 'fas fa-square' },
+            { name: 'Minimum Safe Area', value: 'minimum', icon: 'fas fa-square' },
+            { name: 'Circle', value: 'circle', icon: 'fas fa-circle' },
+            { name: 'Rounded Rectangle', value: 'rounded', icon: 'fas fa-square' },
+            { name: 'Square', value: 'square', icon: 'fas fa-square' },
+            { name: 'Drop', value: 'drop', icon: 'fas fa-tint' },
+            { name: 'Cylinder', value: 'cylinder', icon: 'fas fa-archive' },
+            { name: 'Squircle', value: 'squircle', icon: 'fas fa-square' },
+            { name: 'Flower', value: 'flower', icon: 'fas fa-leaf' },
+            { name: 'Pebble', value: 'pebble', icon: 'fas fa-circle' },
+            { name: 'Vessel', value: 'vessel', icon: 'fas fa-wine-glass-alt' },
+            { name: 'Hexagon', value: 'hexagon', icon: 'fas fa-hexagon' }
+        ];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadApiKeyFromStorage();
+            initializeSizesGrid();
+            initializeFormatsGrid();
+            initializeMasksGrid();
+            initializeBgColorOptions();
+            updatePackagePreview();
+            
+            // Initialize background removal controls
+            document.getElementById('sensitivitySlider').addEventListener('input', function() {
+                document.getElementById('sensitivityValue').textContent = this.value;
+            });
+        });
+
+        function setupEventListeners() {
+            // File upload click
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // File upload change
+            fileInput.addEventListener('change', handleImageUpload);
+
+            // File upload drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleImageUpload({ target: { files: files } });
+                }
+            });
+
+            // Size selection
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.size-card')) {
+                    const sizeCard = e.target.closest('.size-card');
+                    const size = sizeCard.dataset.size;
+                    
+                    if (CONFIG.selectedSizes.has(size)) {
+                        CONFIG.selectedSizes.delete(size);
+                        sizeCard.classList.remove('active');
+                    } else {
+                        CONFIG.selectedSizes.add(size);
+                        sizeCard.classList.add('active');
+                    }
+                    updatePackagePreview();
+                    updateDownloadButton();
+                }
+            });
+
+            // Format selection
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.format-card')) {
+                    const formatCard = e.target.closest('.format-card');
+                    const format = formatCard.dataset.format;
+                    
+                    if (CONFIG.selectedFormats.has(format)) {
+                        CONFIG.selectedFormats.delete(format);
+                        formatCard.classList.remove('active');
+                    } else {
+                        CONFIG.selectedFormats.add(format);
+                        formatCard.classList.add('active');
+                    }
+                    updatePackagePreview();
+                    updateDownloadButton();
+                }
+            });
+
+            // Mask selection with real-time preview
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.mask-card')) {
+                    const maskCard = e.target.closest('.mask-card');
+                    const mask = maskCard.dataset.mask;
+                    
+                    if (CONFIG.selectedMasks.has(mask)) {
+                        CONFIG.selectedMasks.delete(mask);
+                        maskCard.classList.remove('active');
+                    } else {
+                        CONFIG.selectedMasks.add(mask);
+                        maskCard.classList.add('active');
+                    }
+                    updatePackagePreview();
+                    updateMaskPreview(); // NEW: Update preview when masks change
+                }
+            });
+        }
+
+        function initializeSizesGrid() {
+            const grid = document.getElementById('sizesGrid');
+            grid.innerHTML = LOGO_SIZES.map(size => `
+                <div class="size-card" data-size="${size.size}">
+                    <div class="size-icon">
+                        <i class="fas fa-${getSizeIcon(size.type)}"></i>
+                    </div>
+                    <div class="size-name">${size.name}</div>
+                    <div class="size-dimensions">${size.size}</div>
+                </div>
+            `).join('');
+        }
+
+        function initializeFormatsGrid() {
+            const grid = document.getElementById('formatsGrid');
+            grid.innerHTML = FORMATS.map(format => `
+                <div class="format-card ${CONFIG.selectedFormats.has(format.value) ? 'active' : ''}" data-format="${format.value}">
+                    <div class="format-icon">
+                        <i class="fas fa-file-${format.value}"></i>
+                    </div>
+                    <div class="format-name">${format.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function initializeMasksGrid() {
+            const grid = document.getElementById('masksGrid');
+            grid.innerHTML = MASKS.map(mask => `
+                <div class="mask-card ${CONFIG.selectedMasks.has(mask.value) ? 'active' : ''}" data-mask="${mask.value}">
+                    <div class="mask-icon">
+                        <i class="${mask.icon}"></i>
+                    </div>
+                    <div class="mask-name">${mask.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function initializeBgColorOptions() {
+            const options = document.getElementById('bgColorOptions');
+            options.addEventListener('click', (e) => {
+                if (e.target.classList.contains('bg-color-option')) {
+                    // Remove active class from all options
+                    document.querySelectorAll('.bg-color-option').forEach(option => {
+                        option.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked option
+                    e.target.classList.add('active');
+                    
+                    // Update selected background color
+                    CONFIG.selectedBgColor = e.target.dataset.color;
+                    
+                    // If we already have a background removed image, update it with new background
+                    if (CONFIG.bgRemovedImage) {
+                        updateBackgroundRemovedImage();
+                    }
+                }
+            });
+        }
+
+        // NEW FUNCTION: Update mask preview in real-time
+        function updateMaskPreview() {
+            const previewContainer = document.getElementById('maskPreviewContainer');
+            
+            // Clear previous preview
+            previewContainer.innerHTML = '';
+            
+            // Check if we have an image to preview with
+            if (!CONFIG.currentSourceImage) {
+                previewContainer.innerHTML = '<div class="no-preview-message">Upload or generate a logo to see mask preview</div>';
+                return;
+            }
+            
+            // Check if any masks are selected
+            if (CONFIG.selectedMasks.size === 0) {
+                previewContainer.innerHTML = '<div class="no-preview-message">Select masks to see preview</div>';
+                return;
+            }
+            
+            // Create preview for each selected mask
+            CONFIG.selectedMasks.forEach(mask => {
+                if (mask !== 'none') {
+                    createMaskPreview(mask, previewContainer);
+                }
+            });
+            
+            // If only "none" is selected, show message
+            if (CONFIG.selectedMasks.size === 1 && CONFIG.selectedMasks.has('none')) {
+                previewContainer.innerHTML = '<div class="no-preview-message">Select mask shapes to see preview (excluding "None")</div>';
+            }
+        }
+
+        // NEW FUNCTION: Create individual mask preview
+        function createMaskPreview(maskType, container) {
+            const maskPreviewItem = document.createElement('div');
+            maskPreviewItem.className = 'mask-preview-item';
+            
+            const canvas = document.createElement('canvas');
+            canvas.className = 'mask-preview-canvas';
+            canvas.width = 80;
+            canvas.height = 80;
+            
+            const label = document.createElement('div');
+            label.className = 'mask-preview-label';
+            label.textContent = MASKS.find(m => m.value === maskType)?.name || maskType;
+            
+            maskPreviewItem.appendChild(canvas);
+            maskPreviewItem.appendChild(label);
+            container.appendChild(maskPreviewItem);
+            
+            // Apply the mask to the preview
+            applyMaskToPreview(canvas, maskType);
+        }
+
+        // NEW FUNCTION: Apply mask to preview canvas
+        function applyMaskToPreview(canvas, maskType) {
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Apply mask shape
+                ctx.save();
+                applyPreviewMaskShape(ctx, maskType, canvas.width, canvas.height);
+                ctx.clip();
+                
+                // Draw the image with proper scaling
+                const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                const offsetX = (canvas.width - scaledWidth) / 2;
+                const offsetY = (canvas.height - scaledHeight) / 2;
+                
+                ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+                ctx.restore();
+                
+                // Add a subtle border to show the mask shape
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.lineWidth = 1;
+                applyPreviewMaskShape(ctx, maskType, canvas.width, canvas.height);
+                ctx.stroke();
+            };
+            
+            img.src = CONFIG.currentSourceImage;
+        }
+
+        // NEW FUNCTION: Apply mask shapes for preview (simplified version)
+        function applyPreviewMaskShape(ctx, maskType, width, height) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 2; // Slightly smaller for border
+
+            switch (maskType) {
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    break;
+                case 'rounded':
+                    const cornerRadius = 12;
+                    ctx.beginPath();
+                    ctx.roundRect(2, 2, width - 4, height - 4, cornerRadius);
+                    break;
+                case 'square':
+                    ctx.beginPath();
+                    ctx.rect(2, 2, width - 4, height - 4);
+                    break;
+                case 'drop':
+                    // Teardrop shape
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY + radius * 0.3, radius * 0.7, 0, Math.PI * 2);
+                    break;
+                case 'hexagon':
+                    // Hexagon shape
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, 2);
+                    for (let i = 1; i <= 6; i++) {
+                        const angle = (Math.PI / 3) * i;
+                        ctx.lineTo(
+                            centerX + radius * Math.cos(angle),
+                            centerY + radius * Math.sin(angle)
+                        );
+                    }
+                    ctx.closePath();
+                    break;
+                case 'minimum':
+                    // Minimum safe area (circle with padding)
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+                    break;
+                case 'cylinder':
+                    // Cylinder shape (rounded top and bottom)
+                    ctx.beginPath();
+                    ctx.arc(centerX, 10, radius * 0.8, 0, Math.PI);
+                    ctx.arc(centerX, height - 10, radius * 0.8, Math.PI, 0);
+                    ctx.closePath();
+                    break;
+                case 'squircle':
+                    // Superellipse (squircle)
+                    ctx.beginPath();
+                    const n = 4; // Superellipse power
+                    for (let i = 0; i <= 360; i++) {
+                        const angle = i * Math.PI / 180;
+                        const x = centerX + radius * Math.pow(Math.abs(Math.cos(angle)), 2/n) * Math.sign(Math.cos(angle));
+                        const y = centerY + radius * Math.pow(Math.abs(Math.sin(angle)), 2/n) * Math.sign(Math.sin(angle));
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    break;
+                case 'flower':
+                    // Flower shape
+                    ctx.beginPath();
+                    const petals = 6;
+                    for (let i = 0; i <= 360; i++) {
+                        const angle = i * Math.PI / 180;
+                        const r = radius * (0.7 + 0.3 * Math.cos(petals * angle));
+                        const x = centerX + r * Math.cos(angle);
+                        const y = centerY + r * Math.sin(angle);
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    break;
+                case 'pebble':
+                    // Pebble shape (irregular circle)
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius * 0.9, 0, Math.PI * 2);
+                    // Add some irregularity
+                    for (let i = 0; i < 4; i++) {
+                        const angle = (i * Math.PI / 2) + Math.PI / 4;
+                        const bulge = radius * 0.1;
+                        ctx.quadraticCurveTo(
+                            centerX + Math.cos(angle) * (radius + bulge),
+                            centerY + Math.sin(angle) * (radius + bulge),
+                            centerX + Math.cos(angle + Math.PI / 4) * radius,
+                            centerY + Math.sin(angle + Math.PI / 4) * radius
+                        );
+                    }
+                    break;
+                case 'vessel':
+                    // Vessel shape (cup-like)
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - radius * 0.6, centerY + radius * 0.3);
+                    ctx.quadraticCurveTo(centerX, centerY - radius * 0.8, centerX + radius * 0.6, centerY + radius * 0.3);
+                    ctx.lineTo(centerX + radius * 0.4, centerY + radius * 0.8);
+                    ctx.quadraticCurveTo(centerX, centerY + radius, centerX - radius * 0.4, centerY + radius * 0.8);
+                    ctx.closePath();
+                    break;
+                default:
+                    // Default to circle
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            }
+        }
+
+        function getSizeIcon(type) {
+            const icons = {
+                'ios': 'apple',
+                'android': 'android',
+                'app': 'mobile-alt',
+                'social': 'share-alt',
+                'favicon': 'globe',
+                'web': 'desktop',
+                'print': 'print',
+                'custom': 'ruler-combined'
+            };
+            return icons[type] || 'image';
+        }
+
+        function updatePackagePreview() {
+            const preview = document.getElementById('packagePreview');
+            const items = [];
+            
+            // Add standard sizes
+            CONFIG.selectedSizes.forEach(size => {
+                CONFIG.selectedFormats.forEach(format => {
+                    const sizeName = LOGO_SIZES.find(s => s.size === size)?.name || size;
+                    items.push(`
+                        <div class="preview-item">
+                            <div class="preview-size">${size}</div>
+                            <div class="preview-format">${format.toUpperCase()}</div>
+                        </div>
+                    `);
+                });
+            });
+            
+            // Add custom sizes
+            CONFIG.customSizes.forEach(size => {
+                CONFIG.selectedFormats.forEach(format => {
+                    items.push(`
+                        <div class="preview-item">
+                            <div class="preview-size">${size}</div>
+                            <div class="preview-format">${format.toUpperCase()}</div>
+                        </div>
+                    `);
+                });
+            });
+            
+            // Add maskable favicons
+            if (CONFIG.selectedMasks.size > 0) {
+                CONFIG.selectedMasks.forEach(mask => {
+                    if (mask !== 'none') {
+                        const maskName = MASKS.find(m => m.value === mask)?.name || mask;
+                        items.push(`
+                            <div class="preview-item">
+                                <div class="preview-size">Maskable</div>
+                                <div class="preview-format">${maskName}</div>
+                            </div>
+                        `);
+                    }
+                });
+            }
+            
+            preview.innerHTML = items.length > 0 ? items.join('') : 
+                '<div style="grid-column: 1/-1; text-align: center; color: var(--gray); padding: 20px;">Select sizes and formats to see preview</div>';
+        }
+
+        function updateDownloadButton() {
+            const btn = document.getElementById('downloadPackageBtn');
+            btn.disabled = (CONFIG.selectedSizes.size === 0 && CONFIG.customSizes.size === 0) || CONFIG.selectedFormats.size === 0;
+        }
+
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobileNav');
+            nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (window.innerWidth < 768) {
+                document.getElementById('mobileNav').style.display = 'none';
+            }
+        }
+
+        function loadApiKeyFromStorage() {
+            const savedKey = localStorage.getItem('dalle_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                CONFIG.apiKey = savedKey;
+            }
+        }
+
+        async function testApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const statusElement = document.getElementById('apiStatus');
+            
+            if (!apiKey) {
+                showError('Please enter your OpenAI API key');
+                return;
+            }
+
+            CONFIG.apiKey = apiKey;
+            localStorage.setItem('dalle_api_key', apiKey);
+
+            statusElement.innerHTML = '<i class="fas fa-sync fa-spin"></i> Testing connection...';
+
+            try {
+                const response = await fetch(`${CONFIG.baseURL}/models`, {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    CONFIG.isConnected = true;
+                    statusElement.innerHTML = '<i class="fas fa-circle status-connected"></i> Connected to DALL-E';
+                } else {
+                    throw new Error('Invalid API key');
+                }
+            } catch (error) {
+                CONFIG.isConnected = false;
+                statusElement.innerHTML = '<i class="fas fa-circle status-disconnected"></i> Connection failed';
+                showError('Failed to connect: ' + error.message);
+            }
+        }
+
+        async function generateLogo() {
+            if (!CONFIG.isConnected) {
+                showError('Please connect your OpenAI API key first');
+                return;
+            }
+
+            const customPrompt = document.getElementById('customPrompt').value.trim();
+            
+            if (!customPrompt) {
+                showError('Please describe your logo');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const logoDisplay = document.getElementById('logoDisplay');
+            const generatedLogo = document.getElementById('generatedLogo');
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            loading.style.display = 'block';
+            logoDisplay.querySelector('.placeholder').style.display = 'none';
+            generatedLogo.style.display = 'none';
+            hideError();
+
+            try {
+                const imageUrl = await callDalleAPI(customPrompt);
+                generatedLogo.src = imageUrl;
+                generatedLogo.style.display = 'block';
+                CONFIG.generatedImageUrl = imageUrl;
+                CONFIG.currentSourceImage = imageUrl; // NEW: Set current image
+                
+                // AUTO-PROCESS: Immediately remove background from AI-generated image
+                if (CONFIG.autoProcessEnabled) {
+                    document.getElementById('autoProcessNotice').style.display = 'block';
+                    setTimeout(() => {
+                        autoRemoveBackground(imageUrl);
+                    }, 500);
+                }
+                
+                // NEW: Update mask preview with new image
+                updateMaskPreview();
+                
+            } catch (error) {
+                showError('Failed to generate logo: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-robot"></i> Generate Logo with AI';
+            }
+        }
+
+        // REAL-TIME: Auto background removal for AI-generated images
+        function autoRemoveBackground(imageUrl) {
+            const bgRemoveBtn = document.getElementById('bgRemoveBtn');
+            bgRemoveBtn.disabled = true;
+            bgRemoveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Auto-Removing Background...';
+
+            // Create canvas for background removal
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.crossOrigin = "anonymous";
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // Draw the original image
+                ctx.drawImage(img, 0, 0);
+                
+                // Get image data for processing
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Use auto detection algorithm
+                const algorithm = 'auto';
+                const sensitivity = 5;
+                let transparentPixels = 0;
+                
+                // Auto background removal
+                transparentPixels = autoBackgroundRemoval(data, canvas.width, canvas.height, sensitivity);
+                
+                // Put the processed image data back
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Store the processed image
+                CONFIG.bgRemovedImage = canvas.toDataURL('image/png');
+                CONFIG.uploadedImage = imageUrl;
+                CONFIG.currentSourceImage = canvas.toDataURL('image/png'); // NEW: Update current image
+                
+                // Update UI
+                document.getElementById('imagePreview').src = CONFIG.bgRemovedImage;
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('convertBtn').disabled = false;
+                
+                // Show the background removal preview
+                document.getElementById('originalPreview').src = imageUrl;
+                document.getElementById('removedPreview').src = CONFIG.bgRemovedImage;
+                document.getElementById('bgRemovalPreview').style.display = 'flex';
+                
+                // NEW: Update mask preview
+                updateMaskPreview();
+                
+                // Switch to Convert tab to show the result
+                setTimeout(() => {
+                    switchTab('convert');
+                    showConvertSuccess('Background automatically removed from AI-generated logo!');
+                    document.getElementById('autoProcessNotice').style.display = 'none';
+                }, 1000);
+                
+                bgRemoveBtn.disabled = false;
+                bgRemoveBtn.innerHTML = '<i class="fas fa-eraser"></i> Remove Background';
+            };
+            
+            img.src = imageUrl;
+        }
+
+        async function callDalleAPI(prompt) {
+            const response = await fetch(`${CONFIG.baseURL}/images/generations`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${CONFIG.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: CONFIG.model,
+                    prompt: prompt,
+                    size: '1024x1024',
+                    quality: 'standard',
+                    n: 1,
+                    style: 'natural'
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.data[0].url;
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                showConvertError('File size must be less than 5MB');
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showConvertError('Please upload an image file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                CONFIG.uploadedImage = e.target.result;
+                CONFIG.currentSourceImage = e.target.result; // NEW: Set current image
+                document.getElementById('convertBtn').disabled = false;
+                document.getElementById('bgRemoveBtn').disabled = false;
+                
+                // Reset background removal preview
+                document.getElementById('bgRemovalPreview').style.display = 'none';
+                CONFIG.bgRemovedImage = null;
+                
+                // NEW: Update mask preview with new image
+                updateMaskPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // IMPROVED: Background removal for uploaded images
+        function removeBackground() {
+            if (!CONFIG.uploadedImage) {
+                showConvertError('Please upload an image first');
+                return;
+            }
+
+            const bgRemoveBtn = document.getElementById('bgRemoveBtn');
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const sensitivity = parseInt(document.getElementById('sensitivitySlider').value);
+            
+            bgRemoveBtn.disabled = true;
+            bgRemoveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing Background...';
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Show processing stats
+                const statsElement = document.getElementById('processingStats');
+                statsElement.style.display = 'block';
+                
+                let transparentPixels = 0;
+                let totalPixels = data.length / 4;
+                
+                // Choose algorithm based on selection
+                switch(algorithm) {
+                    case 'auto':
+                        transparentPixels = autoBackgroundRemoval(data, canvas.width, canvas.height, sensitivity);
+                        break;
+                    case 'brightness':
+                        transparentPixels = brightnessBasedRemoval(data, sensitivity);
+                        break;
+                    case 'edges':
+                        transparentPixels = edgeBasedRemoval(data, canvas.width, canvas.height, sensitivity);
+                        break;
+                    case 'color':
+                        transparentPixels = colorSimilarityRemoval(data, canvas.width, canvas.height, sensitivity);
+                        break;
+                }
+                
+                // Put processed image back
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Update preview
+                const preview = document.getElementById('imagePreview');
+                preview.src = canvas.toDataURL('image/png');
+                CONFIG.bgRemovedImage = canvas.toDataURL('image/png');
+                CONFIG.currentSourceImage = canvas.toDataURL('image/png'); // NEW: Update current image
+                
+                // Show comparison
+                document.getElementById('originalPreview').src = CONFIG.uploadedImage;
+                document.getElementById('removedPreview').src = CONFIG.bgRemovedImage;
+                document.getElementById('bgRemovalPreview').style.display = 'flex';
+                
+                // Update stats
+                statsElement.innerHTML = `
+                    Processed ${totalPixels} pixels<br>
+                    Made ${transparentPixels} pixels transparent (${Math.round((transparentPixels/totalPixels)*100)}%)<br>
+                    Algorithm: ${algorithm}<br>
+                    Sensitivity: ${sensitivity}/10
+                `;
+                
+                // NEW: Update mask preview
+                updateMaskPreview();
+                
+                bgRemoveBtn.disabled = false;
+                bgRemoveBtn.innerHTML = '<i class="fas fa-eraser"></i> Remove Background';
+                
+                showConvertSuccess(`Background removed successfully using ${algorithm} algorithm!`);
+            };
+            
+            img.src = CONFIG.uploadedImage;
+        }
+
+        // Advanced Auto Detection Algorithm
+        function autoBackgroundRemoval(data, width, height, sensitivity) {
+            let transparentPixels = 0;
+            const threshold = (10 - sensitivity) * 25; // 25-250 range
+            
+            // First pass: detect corners to guess background color
+            const cornerSamples = getCornerColors(data, width, height);
+            const bgColor = estimateBackgroundColor(cornerSamples);
+            
+            // Second pass: remove pixels similar to background
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Calculate color difference from background
+                const colorDiff = colorDistance(r, g, b, bgColor.r, bgColor.g, bgColor.b);
+                
+                // Also check brightness for white/black backgrounds
+                const brightness = (r + g + b) / 3;
+                const brightnessDiff = Math.abs(brightness - bgColor.brightness);
+                
+                // Combined detection
+                if (colorDiff < threshold || brightnessDiff < 30) {
+                    data[i + 3] = 0; // Make transparent
+                    transparentPixels++;
+                }
+            }
+            
+            return transparentPixels;
+        }
+
+        // Get colors from image corners to estimate background
+        function getCornerColors(data, width, height) {
+            const corners = [
+                {x: 5, y: 5},                   // Top-left
+                {x: width - 6, y: 5},           // Top-right
+                {x: 5, y: height - 6},          // Bottom-left
+                {x: width - 6, y: height - 6}   // Bottom-right
+            ];
+            
+            return corners.map(corner => {
+                const index = (corner.y * width + corner.x) * 4;
+                return {
+                    r: data[index],
+                    g: data[index + 1],
+                    b: data[index + 2],
+                    brightness: (data[index] + data[index + 1] + data[index + 2]) / 3
+                };
+            });
+        }
+
+        // Estimate background color from corners
+        function estimateBackgroundColor(cornerColors) {
+            // Simple average of corner colors
+            const avg = cornerColors.reduce((acc, color) => {
+                acc.r += color.r;
+                acc.g += color.g;
+                acc.b += color.b;
+                acc.brightness += color.brightness;
+                return acc;
+            }, {r: 0, g: 0, b: 0, brightness: 0});
+            
+            return {
+                r: Math.round(avg.r / cornerColors.length),
+                g: Math.round(avg.g / cornerColors.length),
+                b: Math.round(avg.b / cornerColors.length),
+                brightness: avg.brightness / cornerColors.length
+            };
+        }
+
+        // Calculate color distance (Euclidean in RGB space)
+        function colorDistance(r1, g1, b1, r2, g2, b2) {
+            return Math.sqrt(
+                Math.pow(r1 - r2, 2) + 
+                Math.pow(g1 - g2, 2) + 
+                Math.pow(b1 - b2, 2)
+            );
+        }
+
+        // Original brightness-based algorithm (for comparison)
+        function brightnessBasedRemoval(data, sensitivity) {
+            let transparentPixels = 0;
+            const threshold = 255 - (sensitivity * 20); // 55-235 range
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const brightness = (r + g + b) / 3;
+                
+                if (brightness > threshold) {
+                    data[i + 3] = 0;
+                    transparentPixels++;
+                }
+            }
+            return transparentPixels;
+        }
+
+        // Edge detection based algorithm
+        function edgeBasedRemoval(data, width, height, sensitivity) {
+            // This is a simplified version - real edge detection would be more complex
+            let transparentPixels = 0;
+            const edgeThreshold = sensitivity * 10;
+            
+            // Create a copy for edge detection
+            const edgeData = new Uint8ClampedArray(data);
+            
+            // Simple edge detection (Sobel-like)
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    
+                    // Skip if already transparent
+                    if (data[idx + 3] === 0) continue;
+                    
+                    // Check if this is likely an edge pixel
+                    const isEdge = isPixelOnEdge(data, x, y, width, edgeThreshold);
+                    
+                    if (!isEdge) {
+                        // Check if it's similar to surrounding background
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        const brightness = (r + g + b) / 3;
+                        
+                        if (brightness > 200) { // Very bright = likely background
+                            data[idx + 3] = 0;
+                            transparentPixels++;
+                        }
+                    }
+                }
+            }
+            return transparentPixels;
+        }
+
+        // Check if pixel is on an edge
+        function isPixelOnEdge(data, x, y, width, threshold) {
+            const idx = (y * width + x) * 4;
+            const currentBrightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+            
+            // Check surrounding pixels
+            const neighbors = [
+                (y * width + (x-1)) * 4,     // left
+                (y * width + (x+1)) * 4,     // right
+                ((y-1) * width + x) * 4,     // top
+                ((y+1) * width + x) * 4      // bottom
+            ];
+            
+            for (const neighborIdx of neighbors) {
+                if (neighborIdx >= 0 && neighborIdx < data.length) {
+                    const neighborBrightness = (data[neighborIdx] + data[neighborIdx + 1] + data[neighborIdx + 2]) / 3;
+                    if (Math.abs(currentBrightness - neighborBrightness) > threshold) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Color similarity based removal
+        function colorSimilarityRemoval(data, width, height, sensitivity) {
+            let transparentPixels = 0;
+            
+            // Sample colors from edges to determine background
+            const edgeColors = sampleEdgeColors(data, width, height);
+            const dominantColor = findDominantColor(edgeColors);
+            const threshold = (10 - sensitivity) * 15;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                const colorDiff = colorDistance(r, g, b, dominantColor.r, dominantColor.g, dominantColor.b);
+                
+                if (colorDiff < threshold) {
+                    data[i + 3] = 0;
+                    transparentPixels++;
+                }
+            }
+            return transparentPixels;
+        }
+
+        // Sample colors from image edges
+        function sampleEdgeColors(data, width, height) {
+            const samples = [];
+            const step = Math.max(1, Math.floor(width / 20));
+            
+            // Top edge
+            for (let x = 0; x < width; x += step) {
+                const idx = (0 * width + x) * 4;
+                samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+            }
+            
+            // Bottom edge
+            for (let x = 0; x < width; x += step) {
+                const idx = ((height - 1) * width + x) * 4;
+                samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+            }
+            
+            // Left edge
+            for (let y = 0; y < height; y += step) {
+                const idx = (y * width + 0) * 4;
+                samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+            }
+            
+            // Right edge
+            for (let y = 0; y < height; y += step) {
+                const idx = (y * width + (width - 1)) * 4;
+                samples.push({r: data[idx], g: data[idx + 1], b: data[idx + 2]});
+            }
+            
+            return samples;
+        }
+
+        // Find the most common color in samples
+        function findDominantColor(colors) {
+            // Simple approach: return the average color
+            const avg = colors.reduce((acc, color) => {
+                acc.r += color.r;
+                acc.g += color.g;
+                acc.b += color.b;
+                return acc;
+            }, {r: 0, g: 0, b: 0});
+            
+            return {
+                r: Math.round(avg.r / colors.length),
+                g: Math.round(avg.g / colors.length),
+                b: Math.round(avg.b / colors.length)
+            };
+        }
+
+        function updateBackgroundRemovedImage() {
+            if (!CONFIG.bgRemovedImage) return;
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // If a background color is selected (not transparent), fill it
+                if (CONFIG.selectedBgColor !== 'transparent') {
+                    ctx.fillStyle = CONFIG.selectedBgColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                
+                // Draw the transparent logo on top
+                ctx.drawImage(img, 0, 0);
+                
+                // Update the preview with the new image
+                const preview = document.getElementById('imagePreview');
+                preview.src = canvas.toDataURL('image/png');
+                CONFIG.bgRemovedImage = canvas.toDataURL('image/png');
+                
+                // Update the background removal preview
+                document.getElementById('removedPreview').src = CONFIG.bgRemovedImage;
+            };
+            
+            img.src = CONFIG.bgRemovedImage;
+        }
+
+        // REAL-TIME: Image conversion and resizing
+        function convertImage() {
+            if (!CONFIG.uploadedImage) {
+                showConvertError('Please upload an image first');
+                return;
+            }
+
+            const format = document.getElementById('outputFormat').value;
+            const quality = parseFloat(document.getElementById('outputQuality').value);
+            const width = document.getElementById('resizeWidth').value;
+            const height = document.getElementById('resizeHeight').value;
+            const maintainAspect = document.getElementById('maintainAspect').checked;
+
+            // Use the background removed image if available
+            const sourceImage = CONFIG.bgRemovedImage || CONFIG.uploadedImage;
+
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
+
+            // Create canvas for conversion
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = function() {
+                // Calculate new dimensions
+                let newWidth = width ? parseInt(width) : img.width;
+                let newHeight = height ? parseInt(height) : img.height;
+
+                if (maintainAspect && (width || height)) {
+                    const ratio = Math.min(
+                        newWidth / img.width, 
+                        newHeight / img.height
+                    );
+                    newWidth = Math.round(img.width * ratio);
+                    newHeight = Math.round(img.height * ratio);
+                }
+
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Enable high-quality rendering
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
+                // Draw image with new dimensions
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                // Convert to desired format
+                let dataUrl;
+                let mimeType;
+                let fileExtension;
+
+                switch (format) {
+                    case 'jpg':
+                        mimeType = 'image/jpeg';
+                        fileExtension = 'jpg';
+                        dataUrl = canvas.toDataURL(mimeType, quality);
+                        break;
+                    case 'webp':
+                        mimeType = 'image/webp';
+                        fileExtension = 'webp';
+                        dataUrl = canvas.toDataURL(mimeType, quality);
+                        break;
+                    case 'png':
+                        mimeType = 'image/png';
+                        fileExtension = 'png';
+                        dataUrl = canvas.toDataURL(mimeType);
+                        break;
+                    case 'ico':
+                        // For ICO format, we'll create a simple conversion
+                        mimeType = 'image/x-icon';
+                        fileExtension = 'ico';
+                        dataUrl = canvas.toDataURL('image/png'); // Fallback to PNG for ICO
+                        break;
+                    case 'svg':
+                        // For SVG, we'll create a simple data URL with base64 encoded PNG
+                        mimeType = 'image/svg+xml';
+                        fileExtension = 'svg';
+                        const pngData = canvas.toDataURL('image/png');
+                        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${newWidth}" height="${newHeight}">
+                            <image href="${pngData}" width="${newWidth}" height="${newHeight}"/>
+                        </svg>`;
+                        dataUrl = 'data:image/svg+xml;base64,' + btoa(svgContent);
+                        break;
+                    case 'pdf':
+                        // For PDF, we'll create a simple data URL with base64 encoded image
+                        mimeType = 'application/pdf';
+                        fileExtension = 'pdf';
+                        const pdfData = canvas.toDataURL('image/png');
+                        dataUrl = pdfData; // Fallback to PNG for PDF
+                        break;
+                    default:
+                        mimeType = 'image/png';
+                        fileExtension = 'png';
+                        dataUrl = canvas.toDataURL(mimeType);
+                }
+
+                // Create and trigger download
+                const link = document.createElement('a');
+                link.download = `converted-image.${fileExtension}`;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Convert & Resize Image';
+                showConvertSuccess(`Image converted to ${format.toUpperCase()} successfully!`);
+            };
+
+            img.src = sourceImage;
+        }
+
+        function addCustomSize() {
+            const width = document.getElementById('customWidth').value;
+            const height = document.getElementById('customHeight').value;
+            
+            if (!width || !height) {
+                alert('Please enter both width and height');
+                return;
+            }
+            
+            if (width < 1 || width > 5000 || height < 1 || height > 5000) {
+                alert('Width and height must be between 1 and 5000 pixels');
+                return;
+            }
+            
+            const size = `${width}x${height}`;
+            
+            if (CONFIG.customSizes.has(size)) {
+                alert('This size is already added');
+                return;
+            }
+            
+            CONFIG.customSizes.add(size);
+            
+            // Add to custom sizes list
+            const customSizesList = document.getElementById('customSizesList');
+            const sizeItem = document.createElement('div');
+            sizeItem.className = 'custom-size-item';
+            sizeItem.innerHTML = `
+                <span>${size}</span>
+                <button class="remove-size-btn" onclick="removeCustomSize('${size}')">Remove</button>
+            `;
+            customSizesList.appendChild(sizeItem);
+            
+            // Clear inputs
+            document.getElementById('customWidth').value = '';
+            document.getElementById('customHeight').value = '';
+            
+            updatePackagePreview();
+            updateDownloadButton();
+        }
+
+        function removeCustomSize(size) {
+            CONFIG.customSizes.delete(size);
+            
+            // Remove from DOM
+            const customSizesList = document.getElementById('customSizesList');
+            const items = customSizesList.querySelectorAll('.custom-size-item');
+            items.forEach(item => {
+                if (item.textContent.includes(size)) {
+                    item.remove();
+                }
+            });
+            
+            updatePackagePreview();
+            updateDownloadButton();
+        }
+
+        // REAL-TIME: High-quality image resizing function
+        function resizeImageWithQuality(img, targetWidth, targetHeight) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                // Enable high-quality image smoothing
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
+                // Calculate scaling to maintain aspect ratio
+                const scale = Math.min(targetWidth / img.width, targetHeight / img.height);
+                const newWidth = img.width * scale;
+                const newHeight = img.height * scale;
+
+                // Center the image
+                const offsetX = (targetWidth - newWidth) / 2;
+                const offsetY = (targetHeight - newHeight) / 2;
+
+                // Draw with proper scaling and positioning
+                ctx.clearRect(0, 0, targetWidth, targetHeight);
+                ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+
+                resolve(canvas);
+            });
+        }
+
+        // REAL-TIME: Convert canvas to specific format with quality
+        function convertCanvasToBlob(canvas, format) {
+            return new Promise((resolve) => {
+                let mimeType, quality = 0.92;
+                
+                switch (format) {
+                    case 'jpg':
+                        mimeType = 'image/jpeg';
+                        break;
+                    case 'webp':
+                        mimeType = 'image/webp';
+                        break;
+                    case 'png':
+                        mimeType = 'image/png';
+                        quality = 1.0; // PNG is lossless
+                        break;
+                    case 'ico':
+                        mimeType = 'image/x-icon';
+                        break;
+                    default:
+                        mimeType = 'image/png';
+                        quality = 1.0;
+                }
+
+                if (format === 'jpg' || format === 'webp') {
+                    canvas.toBlob(resolve, mimeType, quality);
+                } else {
+                    canvas.toBlob(resolve, mimeType);
+                }
+            });
+        }
+
+        // REAL-TIME: Create masked favicon with proper shape
+        function createMaskedFavicon(img, maskType) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 192;
+                canvas.height = 192;
+
+                // Apply different mask shapes
+                ctx.save();
+                applyMaskShape(ctx, maskType, 192, 192);
+                ctx.clip();
+
+                // Enable high-quality rendering
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
+                // Draw the image
+                ctx.drawImage(img, 0, 0, 192, 192);
+                ctx.restore();
+
+                resolve(canvas);
+            });
+        }
+
+        // REAL-TIME: Apply different mask shapes
+        function applyMaskShape(ctx, maskType, width, height) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2;
+
+            switch (maskType) {
+                case 'circle':
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    break;
+                case 'rounded':
+                    const cornerRadius = 20;
+                    ctx.roundRect(0, 0, width, height, cornerRadius);
+                    break;
+                case 'square':
+                    ctx.rect(0, 0, width, height);
+                    break;
+                case 'drop':
+                    // Teardrop shape
+                    ctx.arc(centerX, centerY + radius * 0.3, radius * 0.7, 0, Math.PI * 2);
+                    break;
+                case 'hexagon':
+                    // Hexagon shape
+                    ctx.moveTo(centerX, 0);
+                    for (let i = 1; i <= 6; i++) {
+                        const angle = (Math.PI / 3) * i;
+                        ctx.lineTo(
+                            centerX + radius * Math.cos(angle),
+                            centerY + radius * Math.sin(angle)
+                        );
+                    }
+                    ctx.closePath();
+                    break;
+                // Add more mask shapes as needed
+                default:
+                    ctx.rect(0, 0, width, height);
+            }
+        }
+
+        // Get file extension
+        function getFileExtension(format) {
+            const extensions = {
+                'png': 'png',
+                'jpg': 'jpg',
+                'webp': 'webp',
+                'svg': 'svg',
+                'ico': 'ico',
+                'pdf': 'pdf'
+            };
+            return extensions[format] || 'png';
+        }
+
+        // REAL-TIME: Update progress
+        function updateProgress(processed, total) {
+            const percent = Math.round((processed / total) * 100);
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
+            const downloadBtn = document.getElementById('downloadPackageBtn');
+            
+            progressBar.style.width = `${percent}%`;
+            progressContainer.style.display = 'block';
+            downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing... ${percent}%`;
+        }
+
+        // REAL-TIME: Finalize ZIP creation
+        async function finalizeZip(zip, downloadBtn) {
+            try {
+                const content = await zip.generateAsync({
+                    type: "blob",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 }
+                });
+                
+                saveAs(content, "logo-package.zip");
+                showConvertSuccess('Logo package downloaded successfully!');
+                
+                // Hide progress bar
+                document.getElementById('progressContainer').style.display = 'none';
+            } catch (error) {
+                console.error('Error generating ZIP:', error);
+                showConvertError('Failed to create package file.');
+            } finally {
+                resetDownloadButton(downloadBtn);
+            }
+        }
+
+        // Reset download button
+        function resetDownloadButton(downloadBtn) {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Complete Package';
+        }
+
+        // FIXED: Complete package generation - now uses background-removed image
+        async function downloadPackage() {
+            if ((CONFIG.selectedSizes.size === 0 && CONFIG.customSizes.size === 0) || CONFIG.selectedFormats.size === 0) {
+                showError('Please select at least one size and format');
+                return;
+            }
+
+            // Get the source image - FIX: Use background-removed image when available
+            let sourceImage = null;
+            
+            if (CONFIG.uploadedImage) {
+                // FIX: Use the background-removed image if it exists
+                sourceImage = CONFIG.bgRemovedImage || CONFIG.uploadedImage;
+            } else if (CONFIG.generatedImageUrl) {
+                // FIX: Use the background-removed image if it exists
+                sourceImage = CONFIG.bgRemovedImage || CONFIG.generatedImageUrl;
+            } else {
+                showError('Please upload an image or generate one first');
+                return;
+            }
+
+            const downloadBtn = document.getElementById('downloadPackageBtn');
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Package...';
+
+            try {
+                const zip = new JSZip();
+                const packageInfo = {
+                    sizes: [...CONFIG.selectedSizes, ...CONFIG.customSizes],
+                    formats: Array.from(CONFIG.selectedFormats),
+                    masks: Array.from(CONFIG.selectedMasks),
+                    totalFiles: (CONFIG.selectedSizes.size + CONFIG.customSizes.size) * CONFIG.selectedFormats.size + CONFIG.selectedMasks.size
+                };
+                
+                const readmeContent = `Logo Package Contents:
+Sizes: ${packageInfo.sizes.join(', ')}
+Formats: ${packageInfo.formats.join(', ')}
+Maskable Favicons: ${packageInfo.masks.join(', ')}
+Total Files: ${packageInfo.totalFiles}
+
+Generated by Logo Package Generator`;
+                
+                zip.file("README.txt", readmeContent);
+
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = async function() {
+                    let processedFiles = 0;
+                    const totalFiles = packageInfo.totalFiles;
+
+                    // Process each size with proper resizing
+                    for (const size of packageInfo.sizes) {
+                        const [targetWidth, targetHeight] = size.split('x').map(Number);
+                        
+                        for (const format of packageInfo.formats) {
+                            try {
+                                // Create properly resized image
+                                const resizedImage = await resizeImageWithQuality(img, targetWidth, targetHeight);
+                                
+                                // Convert to desired format
+                                const blob = await convertCanvasToBlob(resizedImage, format);
+                                
+                                // Add to ZIP
+                                zip.file(`logo-${size}.${getFileExtension(format)}`, blob);
+                                processedFiles++;
+                                
+                                updateProgress(processedFiles, totalFiles);
+                                
+                                // Generate ZIP when all files are processed
+                                if (processedFiles === totalFiles) {
+                                    await finalizeZip(zip, downloadBtn);
+                                }
+                            } catch (error) {
+                                console.error(`Error processing ${size}.${format}:`, error);
+                            }
+                        }
+                    }
+
+                    // Process maskable favicons
+                    for (const mask of packageInfo.masks) {
+                        if (mask !== 'none') {
+                            try {
+                                const faviconImage = await createMaskedFavicon(img, mask);
+                                const blob = await convertCanvasToBlob(faviconImage, 'png');
+                                zip.file(`maskable-favicon-${mask}.png`, blob);
+                                processedFiles++;
+                                
+                                updateProgress(processedFiles, totalFiles);
+                                
+                                if (processedFiles === totalFiles) {
+                                    await finalizeZip(zip, downloadBtn);
+                                }
+                            } catch (error) {
+                                console.error(`Error creating favicon ${mask}:`, error);
+                            }
+                        }
+                    }
+                };
+                
+                img.src = sourceImage;
+                
+            } catch (error) {
+                console.error('Error creating ZIP file:', error);
+                showConvertError('Failed to create package. Please try again.');
+                resetDownloadButton(downloadBtn);
+            }
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => errorElement.style.display = 'none', 5000);
+        }
+
+        function showConvertError(message) {
+            const errorElement = document.getElementById('convertError');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => errorElement.style.display = 'none', 5000);
+        }
+
+        function showConvertSuccess(message) {
+            const successElement = document.getElementById('convertSuccess');
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            setTimeout(() => successElement.style.display = 'none', 5000);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Auto-test API key if it exists
+        window.addEventListener('load', function() {
+            if (CONFIG.apiKey) {
+                setTimeout(testApiKey, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
